@@ -1,0 +1,5 @@
+# Diagramas técnicos para trabajos de Ingeniería Informática UNT
+
+Usa la guía vigente de la Escuela, Facultad o asesor para cualquier requisito concreto de presentación. La [página oficial de normativas UNT](https://uraa.unitru.edu.pe/normativas) publica el reglamento general de grados y títulos [RCU N.° 0274-2022/UNT](https://uraa.unitru.edu.pe/storage/normativas/RCU-N-274-2022-UNT.pdf). Esa fuente general no establece aquí un tamaño mínimo de letra, paleta, número de diagramas ni motor obligatorio para figuras de Ingeniería Informática; no presentes preferencias de diseño como requisitos institucionales.
+
+Para cada diagrama, identifica propósito, versión del proyecto, fuente de cada elemento y relación, estado implementado/documentado/propuesto, archivos editables y exportados. Comprueba la notación técnica pertinente y la legibilidad a tamaño real en el documento de destino. Conserva la terminología técnica en español y los identificadores originales cuando permitan cotejar el código. Si un documento institucional exige detalles adicionales de figuras, registra la guía y aplica exactamente esos detalles.
