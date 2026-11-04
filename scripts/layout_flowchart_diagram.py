@@ -433,6 +433,56 @@ def route_flowchart_edges(diagram: dict[str, Any]) -> None:
         edge["points"] = [{"x": round(x, 3), "y": round(y, 3)} for x, y in points]
 
 
+def place_edge_labels(diagram: dict[str, Any]) -> None:
+    """Place route labels away from nodes and previously placed labels."""
+    boxes = list(build_boxes(diagram["nodes"]).values())
+    occupied: list[Box] = []
+    page_w = float(diagram["layout"]["pageWidth"])
+    page_h = float(diagram["layout"]["pageHeight"])
+    for edge in diagram["edges"]:
+        label = as_text(edge.get("label"))
+        points = edge.get("points") or []
+        if not label or len(points) < 2:
+            continue
+        width = max(0.34, min(1.7, 0.18 + len(label) * 0.072))
+        height = 0.24
+        candidates: list[tuple[float, float, float]] = []
+        for a, b in zip(points, points[1:]):
+            ax, ay, bx, by = float(a["x"]), float(a["y"]), float(b["x"]), float(b["y"])
+            length = abs(ax - bx) + abs(ay - by)
+            if length < 0.16:
+                continue
+            for fraction in (0.5, 0.25, 0.75):
+                mid_x = ax + (bx - ax) * fraction
+                mid_y = ay + (by - ay) * fraction
+                for sign in (-1, 1):
+                    if abs(ax - bx) < 0.001:
+                        x, y = mid_x + sign * (width / 2 + 0.09), mid_y
+                    else:
+                        x, y = mid_x, mid_y + sign * (height / 2 + 0.09)
+                    box = Box("label", x, y, width, height)
+                    collision = sum(100 for other in boxes if boxes_overlap(box, other, 0.03))
+                    collision += sum(120 for other in occupied if boxes_overlap(box, other, 0.05))
+                    if x - width / 2 < 0.1 or x + width / 2 > page_w - 0.1:
+                        collision += 60
+                    if y - height / 2 < 0.1 or y + height / 2 > page_h - 0.1:
+                        collision += 60
+                    score = collision + (1 / length) + abs(fraction - 0.5)
+                    candidates.append((score, x, y))
+        if candidates:
+            _, x, y = min(candidates)
+            edge["labelPosition"] = {"x": round(x, 3), "y": round(y, 3),
+                                     "width": round(width, 3), "height": height}
+            occupied.append(Box("label", x, y, width, height))
+
+
+def boxes_overlap(a: Box, b: Box, pad: float = 0.0) -> bool:
+    return (a.x - a.w / 2 < b.x + b.w / 2 + pad and
+            a.x + a.w / 2 > b.x - b.w / 2 - pad and
+            a.y - a.h / 2 < b.y + b.h / 2 + pad and
+            a.y + a.h / 2 > b.y - b.h / 2 - pad)
+
+
 def maybe_wrap_flat_lr(nodes: list[dict[str, Any]], layout: dict[str, Any], direction: str) -> None:
     if direction not in {"LR", "RL"}:
         return
@@ -514,6 +564,7 @@ def layout_flowchart(diagram: dict[str, Any]) -> None:
     layout["pageHeight"] = round(page_h, 3)
     layout["direction"] = direction
     route_flowchart_edges(diagram)
+    place_edge_labels(diagram)
 
 
 def main() -> int:

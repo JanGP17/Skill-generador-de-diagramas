@@ -225,7 +225,7 @@ function Add-Label {
   $label.Text = $Text
   Set-CellFormula -Shape $label -CellName "LinePattern" -Formula "0"
   Set-CellFormula -Shape $label -CellName "FillPattern" -Formula "0"
-  Set-TextStyle -Shape $label -Size 9 -Bold 0
+  Set-TextStyle -Shape $label -Size 9.5 -Bold 0
   return $label
 }
 
@@ -410,9 +410,14 @@ function Add-RouteLabel {
   param(
     [Parameter(Mandatory = $true)] $Page,
     [string] $Text,
-    [Parameter(Mandatory = $true)] [object[]] $Points
+    [Parameter(Mandatory = $true)] [object[]] $Points,
+    [object] $Position = $null
   )
   if (-not $Text -or $Points.Count -lt 2) {
+    return
+  }
+  if ($null -ne $Position) {
+    Add-Label -Page $Page -Text $Text -X ([double] (Get-Prop $Position "x")) -Y ([double] (Get-Prop $Position "y")) -Width ([double] (Get-Prop $Position "width" 0.9)) -Height ([double] (Get-Prop $Position "height" 0.24)) | Out-Null
     return
   }
   $segmentCount = $Points.Count - 1
@@ -429,6 +434,7 @@ function Connect-RoutedEdge {
     [Parameter(Mandatory = $true)] $To,
     [Parameter(Mandatory = $true)] [object[]] $Points,
     [string] $Label = "",
+    [object] $LabelPosition = $null,
     [switch] $Dashed
   )
   if ($Points.Count -lt 2) {
@@ -453,7 +459,7 @@ function Connect-RoutedEdge {
     }
     $segments += $line
   }
-  Add-RouteLabel -Page $Page -Text $Label -Points $Points
+  Add-RouteLabel -Page $Page -Text $Label -Points $Points -Position $LabelPosition
   return @($segments)
 }
 
@@ -533,7 +539,7 @@ function Render-FlowchartDiagram {
       $route = (As-Text (Get-Prop $edge "route")).ToLowerInvariant()
       $points = Get-RoutePoints -Edge $edge
       if ($points.Count -ge 2) {
-        Connect-RoutedEdge -Page $Page -From $nodeShapes[$fromId] -To $nodeShapes[$toId] -Points $points -Label (As-Text (Get-Prop $edge "label")) -Dashed:$dashed | Out-Null
+        Connect-RoutedEdge -Page $Page -From $nodeShapes[$fromId] -To $nodeShapes[$toId] -Points $points -Label (As-Text (Get-Prop $edge "label")) -LabelPosition (Get-Prop $edge "labelPosition") -Dashed:$dashed | Out-Null
       } else {
         $fromY = [double] $nodeShapes[$fromId].CellsU("PinY").ResultIU
         $toY = [double] $nodeShapes[$toId].CellsU("PinY").ResultIU

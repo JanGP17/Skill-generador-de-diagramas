@@ -291,6 +291,8 @@ def validate_trace(path: Path, project_root: Path | None, model: dict[str, Any] 
     ids: set[str] = set()
     model_ids = {str(item.get("id")) for item in (model or {}).get("nodes", [])
                  if isinstance(item, dict) and not item.get("synthetic")}
+    synthetic_ids = {str(item.get("id")) for item in (model or {}).get("nodes", [])
+                     if isinstance(item, dict) and item.get("synthetic")}
     root = project_root.resolve() if project_root else None
     revision = str(manifest.get("project_revision") or "")
     head = current_revision(root) if root else None
@@ -367,7 +369,7 @@ def validate_trace(path: Path, project_root: Path | None, model: dict[str, Any] 
                                   f"{relation.get('id')} references an unknown element"))
     if model_ids:
         missing = sorted(model_ids - element_ids)
-        extra = sorted(element_ids - model_ids)
+        extra = sorted(element_ids - model_ids - synthetic_ids)
         if missing:
             issues.append(finding("model_elements_untraced", "blocking", "Model nodes lack trace entries", missing))
         if extra:

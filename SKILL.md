@@ -23,6 +23,8 @@ Analiza proyectos y produce modelos técnicos con evidencia. Trabaja en español
 
 Escoge el motor por la semántica requerida y la editabilidad deseada. No conviertas automáticamente entre notaciones si se pierden relaciones o significado. Verifica sintaxis, SVG/XML, conectores, superposiciones, texto, contraste, densidad y legibilidad al tamaño final. Divide un modelo complejo antes de reducirlo hasta volverlo ilegible. Si un elemento es una propuesta, márcalo de forma visible y conserva su fundamento.
 
+Para una selección reproducible, consulta `scripts/select_diagram_engine.py <tipo>`; añade `--editable-visio` solo si se requiere VSDX y existe un generador para ese tipo. El selector devuelve el motor, extensión y script o tipo de renderizado; no genera ni convierte diagramas. Un tipo sin ruta válida produce error explícito. Consulta [diagramas textuales](references/diagramas-textuales.md) para los tipos admitidos.
+
 ## Control de calidad y descomposición
 
 Aplica [calidad y trazabilidad](references/calidad-y-trazabilidad.md) antes y después de generar diagramas: `scripts/diagram_quality.py` comparte mediciones de escala, fuente, densidad, decisiones, conectores e integridad de archivos. El renderizador PlantUML/Mermaid y los cuatro generadores Visio lo invocan por defecto; conserva sus verificadores de sintaxis y geometría. Usa caja y umbrales configurables; el punto de partida es 160 × 240 mm, con bloqueo de aprobación automática por debajo de 5 pt estimados y advertencia hasta 7 pt. Estas cifras son criterios técnicos orientativos, no requisitos de la UNT.
